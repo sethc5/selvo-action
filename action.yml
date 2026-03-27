@@ -1,0 +1,65 @@
+name: "selvo Security Scan"
+description: "Scan Linux packages for CVEs, exploit maturity, CISA KEV status, and SLA breaches via the selvo API."
+author: "sethc5"
+
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  api-key:
+    description: "selvo API key (from selvo.fly.dev)"
+    required: true
+  ecosystem:
+    description: "Ecosystem to scan (debian, ubuntu, fedora, alpine, arch, nixos, all)"
+    required: false
+    default: "all"
+  limit:
+    description: "Max packages to return"
+    required: false
+    default: "50"
+  fail-on-kev:
+    description: "Fail if any CISA KEV packages found"
+    required: false
+    default: "false"
+  fail-on-weaponized:
+    description: "Fail if any weaponized exploits found"
+    required: false
+    default: "false"
+  min-score:
+    description: "Fail if any package scores above this threshold (0 to disable)"
+    required: false
+    default: "0"
+  api-url:
+    description: "selvo API base URL"
+    required: false
+    default: "https://selvo.fly.dev"
+
+outputs:
+  total-packages:
+    description: "Total packages analyzed"
+  packages-with-cves:
+    description: "Number of packages with CVEs"
+  kev-count:
+    description: "Number of CISA KEV packages"
+  weaponized-count:
+    description: "Number of packages with weaponized exploits"
+  max-score:
+    description: "Highest package risk score"
+  passed:
+    description: "'true' if all gates passed, 'false' otherwise"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run selvo scan
+      shell: bash
+      env:
+        SELVO_API_KEY: ${{ inputs.api-key }}
+        SELVO_API_URL: ${{ inputs.api-url }}
+        SELVO_ECOSYSTEM: ${{ inputs.ecosystem }}
+        SELVO_LIMIT: ${{ inputs.limit }}
+        SELVO_FAIL_ON_KEV: ${{ inputs.fail-on-kev }}
+        SELVO_FAIL_ON_WEAPONIZED: ${{ inputs.fail-on-weaponized }}
+        SELVO_MIN_SCORE: ${{ inputs.min-score }}
+      run: bash "${{ github.action_path }}/scripts/scan.sh"
