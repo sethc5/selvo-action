@@ -155,7 +155,7 @@ TABLE_HEADER
 fi
 
 echo "" >> "$GITHUB_STEP_SUMMARY"
-echo "*Powered by [selvo](https://selvo.fly.dev) — Linux dependency risk scanner*" >> "$GITHUB_STEP_SUMMARY"
+echo "*Powered by [selvo](https://selvo.dev) — Linux dependency risk scanner*" >> "$GITHUB_STEP_SUMMARY"
 
 # ── Gate checks ─────────────────────────────────────────────────────────
 
