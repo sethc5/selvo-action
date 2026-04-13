@@ -1,0 +1,38 @@
+name: Smoke test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write  # for the PR-comment path on PR runs
+
+jobs:
+  scan:
+    name: Self-scan with the local action
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run selvo on the runner's own packages
+        id: selvo
+        uses: ./
+        with:
+          ecosystem: ubuntu
+          limit: 25
+          context: local
+          fail-on-kev: "false"
+          fail-on-weaponized: "false"
+
+      - name: Echo outputs
+        run: |
+          echo "total=${{ steps.selvo.outputs.total-packages }}"
+          echo "with-cves=${{ steps.selvo.outputs.packages-with-cves }}"
+          echo "kev=${{ steps.selvo.outputs.kev-count }}"
+          echo "weaponized=${{ steps.selvo.outputs.weaponized-count }}"
+          echo "max-score=${{ steps.selvo.outputs.max-score }}"
+          echo "passed=${{ steps.selvo.outputs.passed }}"
